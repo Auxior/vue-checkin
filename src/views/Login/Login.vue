@@ -19,6 +19,17 @@
         <el-button type="primary" @click="submitForm(ruleFormRef)" auto-insert-space>登录</el-button>
       </el-form-item>
     </el-form>
+    <div class="users">
+      <el-row :gutter="20">
+        <el-col v-for="item in testUsers" :key="item.email" :span="12">
+          <h3>
+            测试账号，<el-button @click="autoLogin({ email: item.email, pass: item.pass })">一键登录</el-button>
+          </h3>
+          <p>邮箱：{{ item.email }}</p>
+          <p>密码：{{ item.pass }}</p>
+        </el-col>
+      </el-row>
+    </div>
   </div>
 </template>
 
@@ -42,18 +53,42 @@ const ruleForm = reactive<User>({
 })
 
 const rules = reactive<FormRules>({
+  email: [
+    { required: true, message: '请输入邮箱', trigger: 'blur' },
+    { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
+  ],
+  pass: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+  ]
 })
+
+const testUsers: User[] = [
+  {
+    email: 'testA@iswd.top',
+    pass: 'testA'
+  },
+  {
+    email: 'testB@iswd.top',
+    pass: 'testB'
+  }
+]
 
 const submitForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return
   formEl.validate((valid) => {
     if (valid) {
-      console.log('submit!')
+      console.log(ruleForm)
     } else {
       console.log('error submit!')
       return false
     }
   })
+}
+
+const autoLogin = (user: User) => {
+  ruleForm.email = user.email
+  ruleForm.pass = user.pass
+  submitForm(ruleFormRef.value)
 }
 </script>
 
@@ -106,6 +141,20 @@ const submitForm = (formEl: FormInstance | undefined) => {
     width: 500px;
     margin: 0 auto;
     padding-top: 50px;
+  }
+
+  .users {
+    width: 500px;
+    margin: 60px auto;
+    color: rgba(0, 0, 0, .65);
+
+    h3 {
+      font-size: 16px;
+    }
+
+    p {
+      margin: 20px;
+    }
   }
 }
 </style>
