@@ -35,10 +35,12 @@
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
+import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
-
-// import { useStore } from '@/store';
-// const store = useStore()
+import { useStore } from '@/store';
+import { useRouter } from 'vue-router';
+const store = useStore()
+const router = useRouter()
 
 interface User {
   email: string
@@ -78,6 +80,15 @@ const submitForm = (formEl: FormInstance | undefined) => {
   formEl.validate((valid) => {
     if (valid) {
       console.log(ruleForm)
+      store.dispatch('users/login', ruleForm).then((res) => {
+        if (res.data.errcode === 0) {
+          store.commit('users/updateToken', res.data.token)
+          ElMessage.success('登录成功')
+          router.push('/')
+        } else {
+          ElMessage.error('登录失败')
+        }
+      })
     } else {
       console.log('error submit!')
       return false
