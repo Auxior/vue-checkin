@@ -63,7 +63,9 @@
 <script setup lang="ts">
 import { ref, computed, reactive } from 'vue'
 import { useStore } from '@/store';
+import { ElMessage } from 'element-plus'
 import type { DateModelType, FormInstance, FormRules } from 'element-plus'
+import moment from 'moment'
 
 interface ApplyList {
   applicantid: string,
@@ -108,14 +110,27 @@ const ruleForm = reactive<ApplyList>({
   time: ['', '']
 })
 
+const validatorTime = (rule: unknown, value: [DateModelType, DateModelType], callback: (arg?: Error) => void) => {
+  if (!value[0] && !value[1]) {
+    callback(new Error('请选择审批时间'))
+  } else {
+    callback()
+  }
+}
+
 const rules = reactive<FormRules>({
-  email: [
-    { required: true, message: '请输入邮箱', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
+  approvername: [
+    { required: true, message: '请选择审批人', trigger: 'blur' },
   ],
-  pass: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-  ]
+  reason: [
+    { required: true, message: '请选择请假事由', trigger: 'blur' },
+  ],
+  time: [
+    { validator: validatorTime, trigger: 'blur' },
+  ],
+  note: [
+    { required: true, message: '请添加审批备注', trigger: 'blur' },
+  ],
 })
 
 const handleOpen = () => {
@@ -126,7 +141,23 @@ const submitForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return
   formEl.validate((valid) => {
     if (valid) {
-      console.log(ruleForm);
+      ruleForm.applicantid = usersInfos.value._id as string
+      ruleForm.applicantname = usersInfos.value.name as string
+      ruleForm.approverid = (approver.value.find((v) => v.name === ruleForm.approvername) as { [index: string]: unknown })._id as string
+      ruleForm.time[0] = moment(ruleForm.time[0]).format('YYYY-MM-DD hh:mm:ss')
+      ruleForm.time[1] = moment(ruleForm.time[1]).format('YYYY-MM-DD hh:mm:ss')
+      store.dispatch('checks/postApply', ruleForm).then((res) => {
+        if (res.data.errcode === 0) {
+          store.dispatch('checks/getApply', { applicantid: usersInfos.value._id }).then((res) => {
+            if (res.data.errcode === 0) {
+              store.commit('checks/updateApplyList', res.data.rets);
+            }
+          })
+          ElMessage.success('添加审批成功')
+          resetForm(ruleFormRef.value)
+          handleClose()
+        }
+      })
     } else {
       return false
     }
