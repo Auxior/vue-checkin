@@ -6,7 +6,7 @@
         <i class="iconfont icon-icon-test"></i>
         <i class="iconfont icon-typescript"></i>
       </span>
-      <div class="header-title">在线考勤系统</div>
+      <span class="header-title">在线考勤系统</span>
     </div>
     <el-form ref="ruleFormRef" :model="ruleForm" :rules="rules" label-width="120px" class="main">
       <el-form-item label="邮箱" prop="email">
