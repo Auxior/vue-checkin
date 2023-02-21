@@ -1,6 +1,6 @@
 <template>
-  <div>
-    HomeMain
+  <div class="home-main">
+    <router-view></router-view>
   </div>
 </template>
 
@@ -8,4 +8,11 @@
 
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.home-main {
+  margin-top: 20px;
+  background: #fff;
+  flex-grow: 1;
+  position: relative;
+}
+</style>

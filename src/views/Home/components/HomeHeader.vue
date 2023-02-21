@@ -7,9 +7,11 @@
     </span>
     <span class="home-header-title">在线考勤系统</span>
     <el-dropdown>
-      <el-icon :size="20">
-        <Bell />
-      </el-icon>
+      <el-badge>
+        <el-icon :size="20">
+          <Bell />
+        </el-icon>
+      </el-badge>
       <template #dropdown>
         <el-dropdown-menu>
           <el-dropdown-item>暂无消息</el-dropdown-item>
@@ -17,11 +19,9 @@
       </template>
     </el-dropdown>
     <el-dropdown>
-      <el-badge class="home-header-badge">
-        <el-space>
-          <el-avatar src="http://api.iswd.top/uploads/62632f3f674b1e20c841aae2.png" />
-        </el-space>
-      </el-badge>
+      <el-space class="home-header-space">
+        <el-avatar src="http://api.iswd.top/uploads/62632f3f674b1e20c841aae2.png" />
+      </el-space>
       <template #dropdown>
         <el-dropdown-menu>
           <el-dropdown-item>个人中心</el-dropdown-item>
@@ -72,7 +72,7 @@
     margin-right: auto;
   }
 
-  .home-header-badge {
+  .home-header-space {
     margin-left: 20px;
   }
 }
