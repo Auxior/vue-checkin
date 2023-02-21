@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
+import _ from 'lodash';
 import store from '@/store';
 import type { StateAll } from '@/store';
 
@@ -91,9 +92,15 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const token = (store.state as StateAll).users.token;
-  if (to.meta.auth) {
+  const infos = (store.state as StateAll).users.infos;
+  if (to.meta.auth && _.isEmpty(infos)) {
     if (token) {
-      next();
+      store.dispatch('users/infos').then((res) => {
+        if (res.data.errcode === 0) {
+          store.commit('users/updateInfos', res.data.infos);
+          next();
+        }
+      });
     } else {
       next('/login');
     }
