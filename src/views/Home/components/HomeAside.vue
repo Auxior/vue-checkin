@@ -1,32 +1,38 @@
 <template>
-  <div>
-    <el-menu default-active="1-1">
-      <el-sub-menu index="1">
-        <template #title>
-          <el-icon>
-            <location />
-          </el-icon>
-          <span>Navigator One</span>
-        </template>
-        <el-menu-item index="1-1">
-          <el-icon>
-            <location />
-          </el-icon>
-          <span>item one</span>
-        </el-menu-item>
-        <el-menu-item index="1-2">
-          <el-icon>
-            <location />
-          </el-icon>
-          <span>item two</span>
-        </el-menu-item>
-      </el-sub-menu>
-    </el-menu>
-  </div>
+  <el-menu :default-active="route.fullPath" router>
+    <el-sub-menu v-for="item in menus" :key="item.path" :index="item.path">
+      <template #title>
+        <el-icon>
+          <component :is="item.meta?.icon"></component>
+        </el-icon>
+        <span>{{ item.meta?.title }}</span>
+      </template>
+      <el-menu-item v-for="itemChild in item.children" :key="item.path + itemChild.path"
+        :index="item.path + itemChild.path">
+        <el-icon>
+          <component :is="itemChild.meta?.icon"></component>
+        </el-icon>
+        <span>{{ itemChild.meta?.title }}</span>
+      </el-menu-item>
+    </el-sub-menu>
+  </el-menu>
 </template>
 
 <script setup lang="ts">
+import _ from 'lodash'
+import { useRouter, useRoute } from 'vue-router';
+import type { RouteRecordName } from 'vue-router'
+import { useStore } from '@/store';
 
+const router = useRouter()
+const route = useRoute()
+const store = useStore()
+const permission = store.state.users.infos.permission
+
+const menus = _.cloneDeep(router.options.routes).filter((v) => {
+  v.children = v.children?.filter((v) => v.meta?.menu && (permission as (RouteRecordName | undefined)[]).includes(v.name))
+  return v.meta?.menu && (permission as (RouteRecordName | undefined)[]).includes(v.name)
+})
 </script>
 
 <style scoped lang="scss">
