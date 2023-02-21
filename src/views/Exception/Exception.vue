@@ -10,7 +10,7 @@
   </div>
   <el-row :gutter="20">
     <el-col :span="12">
-      <el-empty v-if="false" description="暂无异常考勤" />
+      <el-empty v-if="detailMonth.length === 0" description="暂无异常考勤" />
       <el-timeline v-else>
         <el-timeline-item v-for="item in detailMonth" :key="item[0]" :timestamp="year + '/' + month + '/' + item[0]"
           placement="top">
@@ -25,20 +25,14 @@
     </el-col>
 
     <el-col :span="12">
-      <el-empty v-if="false" description="暂无申请审批" />
+      <el-empty v-if="applyListMonth.length === 0" description="暂无申请审批" />
       <el-timeline v-else>
-        <el-timeline-item timestamp="事假" placement="top">
+        <el-timeline-item v-for="item in applyListMonth" :key="(item._id as string)" :timestamp="(item.reason as string)"
+          placement="top">
           <el-card>
-            <h4>已通过</h4>
-            <p class="apply-info">申请日期 2023-02-21 07:00:00 - 2023-02-21 20:00:00</p>
-            <p class="apply-info">申请详情 让我休息休息吧</p>
-          </el-card>
-        </el-timeline-item>
-        <el-timeline-item timestamp="事假" placement="top">
-          <el-card>
-            <h4>已通过</h4>
-            <p class="apply-info">申请日期 2023-02-21 07:00:00 - 2023-02-21 20:00:00</p>
-            <p class="apply-info">申请详情 让我休息休息吧</p>
+            <h4>{{ item.state }}</h4>
+            <p class="apply-info">申请日期 {{ (item.time as string[])[0] }} - {{ (item.time as string[])[1] }}</p>
+            <p class="apply-info">申请详情 {{ item.note }}</p>
           </el-card>
         </el-timeline-item>
       </el-timeline>
@@ -61,6 +55,12 @@ const signsInfos = computed(() => store.state.signs.infos)
 const date = new Date()
 const year = date.getFullYear()
 const month = ref(Number(route.query.month) || date.getMonth() + 1)
+
+const applyListMonth = computed(() => store.state.checks.applyList.filter((v) => {
+  const startTime = (v.time as string[])[0].split(' ')[0].split('-')
+  const endTime = (v.time as string[])[1].split(' ')[0].split('-')
+  return startTime[1] <= toZero(month.value) && endTime[1] >= toZero(month.value)
+}))
 
 const ret = (signsInfos.value.detail as { [index: string]: unknown })[toZero(month.value)] as { [index: string]: unknown }
 
