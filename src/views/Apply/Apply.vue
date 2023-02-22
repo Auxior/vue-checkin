@@ -153,6 +153,7 @@ const submitForm = (formEl: FormInstance | undefined) => {
               store.commit('checks/updateApplyList', res.data.rets);
             }
           })
+          store.dispatch('news/putRemind', { userid: ruleForm.approverid, approver: true })
           ElMessage.success('添加审批成功')
           resetForm(ruleFormRef.value)
           handleClose()
