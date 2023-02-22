@@ -13,7 +13,7 @@
     </el-space>
   </div>
   <div class="check-table">
-    <el-table :data="checkList" border style="width: 100%">
+    <el-table :data="pageCheckList" border style="width: 100%">
       <el-table-column prop="applicantname" label="申请人" width="180" />
       <el-table-column prop="reason" label="审批事由" width="180" />
       <el-table-column prop="time" label="时间">
@@ -22,7 +22,14 @@
         </template>
       </el-table-column>
       <el-table-column prop="note" label="备注" />
-      <el-table-column label="操作" width="180" />
+      <el-table-column label="操作" width="180">
+        <template #default="scope">
+          <el-button @click="handlePutApply(scope.row._id, '已通过')" type="success" icon="check" size="small"
+            circle></el-button>
+          <el-button @click="handlePutApply(scope.row._id, '未通过')" type="danger" icon="close" size="small"
+            circle></el-button>
+        </template>
+      </el-table-column>
       <el-table-column prop="state" label="状态" width="180" />
     </el-table>
     <el-pagination small background layout="prev, pager, next" :total="checkList.length" :page-size="pageSize"
@@ -33,6 +40,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useStore } from '@/store';
+import { ElMessage } from 'element-plus';
 
 const store = useStore()
 const defaultType = '全部'
@@ -41,10 +49,27 @@ const searchWord = ref('')
 const pageSize = ref(2)
 const pageCurrent = ref(1)
 
-const checkList = computed(() => store.state.checks.checkList)
+const usersInfos = computed(() => store.state.users.infos)
+
+const checkList = computed(() => store.state.checks.checkList.filter((v) => (v.state === approverType.value || defaultType === approverType.value) && (v.note as string).includes(searchWord.value)))
+
+const pageCheckList = computed(() => checkList.value.slice((pageCurrent.value - 1) * pageSize.value, pageCurrent.value * pageSize.value))
 
 const handleChange = (value: number) => {
   pageCurrent.value = value;
+}
+
+const handlePutApply = (_id: string, state: '已通过' | '未通过') => {
+  store.dispatch('checks/putApply', { _id, state }).then((res) => {
+    if (res.data.errcode === 0) {
+      store.dispatch('checks/getApply', { approverid: usersInfos.value._id }).then((res) => {
+        if (res.data.errcode === 0) {
+          store.commit('checks/updateCheckList', res.data.rets);
+        }
+      });
+      ElMessage.success('审批成功')
+    }
+  })
 }
 </script>
 
